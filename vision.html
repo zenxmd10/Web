@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All DL | Premium Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Color Palette */
+        :root { 
+            --bg-dark: #020617; 
+            --accent-blue: #3b82f6; 
+            --neon-green: #22c55e; 
+            --text-white: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0, transparent 50%), 
+                              radial-gradient(at 100% 100%, rgba(34, 197, 94, 0.1) 0, transparent 50%);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; color: var(--text-white);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 40px 30px; border-radius: 24px;
+            width: 100%; max-width: 440px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo { font-size: 38px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 5px; }
+        .logo span { 
+            background: linear-gradient(to right, var(--accent-blue), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline { color: #64748b; font-size: 13px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .input-wrapper {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px; margin-bottom: 15px;
+            display: flex; align-items: center; padding: 0 15px;
+            transition: 0.3s;
+        }
+        .input-wrapper:focus-within { border-color: var(--neon-green); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+
+        input {
+            background: transparent; border: none; padding: 14px;
+            color: white; width: 100%; outline: none; font-size: 14px;
+        }
+
+        .dl-btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--neon-green));
+            width: 100%; padding: 15px; border-radius: 12px;
+            border: none; font-weight: 700; cursor: pointer;
+            color: #fff; font-size: 16px; transition: 0.4s;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+        }
+
+        .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4); }
+
+        #loader { display: none; margin-top: 25px; color: var(--neon-green); font-weight: 500; }
+
+        #result {
+            display: none; margin-top: 30px; padding: 10px;
+            border-radius: 18px; background: rgba(255, 255, 255, 0.04);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } }
+
+        .preview-img { width: 100%; border-radius: 14px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+
+        .final-link {
+            display: block; background: var(--neon-green); color: #052e16;
+            padding: 12px; border-radius: 10px; text-decoration: none;
+            font-weight: 800; font-size: 14px; transition: 0.3s;
+        }
+        .final-link:hover { filter: brightness(1.1); }
+
+        .status-icons { margin-top: 30px; display: flex; justify-content: center; gap: 20px; color: #334155; }
+        .status-icons i:hover { color: var(--accent-blue); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">All <span>DL</span></div>
+    <div class="tagline">The Pro Downloader</div>
+
+    <div class="input-wrapper">
+        <i class="fas fa-link" style="color:var(--accent-blue)"></i>
+        <input type="text" id="urlInput" placeholder="Paste URL from Instagram or Terabox">
+    </div>
+
+    <button class="dl-btn" id="goBtn" onclick="handleDL()">GENERATE LINK</button>
+
+    <div id="loader">
+        <i class="fas fa-spinner fa-spin"></i> Processing Securely...
+    </div>
+
+    <div id="result">
+        <img id="prevImg" class="preview-img" src="" alt="">
+        <p id="videoTitle" style="font-size: 13px; margin-bottom: 15px; color: #cbd5e1;"></p>
+        <a id="downloadUrl" class="final-link" href="" target="_blank">
+            <i class="fas fa-cloud-download-alt"></i> DOWNLOAD NOW
+        </a>
+    </div>
+
+    <div class="status-icons">
+        <i class="fab fa-instagram"></i>
+        <i class="fas fa-box"></i>
+        <i class="fab fa-youtube"></i>
+        <i class="fab fa-spotify"></i>
+    </div>
+</div>
+
+<script>
+    async function handleDL() {
+        const link = document.getElementById('urlInput').value.trim();
+        const btn = document.getElementById('goBtn');
+        const loader = document.getElementById('loader');
+        const resBox = document.getElementById('result');
+
+        if(!link) return;
+
+        btn.disabled = true;
+        loader.style.display = "block";
+        resBox.style.display = "none";
+
+        let endpoint = "";
+        if(link.includes("instagram.com")) {
+            endpoint = `https://insta-7pvs.onrender.com/download?url=${encodeURIComponent(link)}`;
+        } else if(link.includes("terabox") || link.includes("1024terabox")) {
+            endpoint = `https://tera-core.vercel.app/api?url=${encodeURIComponent(link)}`;
+        } else {
+            alert("Coming Soon! Stay tuned.");
+            resetUI(); return;
+        }
+
+        try {
+            const resp = await fetch(endpoint);
+            const json = await resp.json();
+
+            if(json.status === "success") {
+                if(link.includes("instagram")) {
+                    document.getElementById('prevImg').src = json.thumbnail;
+                    document.getElementById('videoTitle').innerText = json.title || "Instagram Reels";
+                    document.getElementById('downloadUrl').href = json.video_url;
+                } else {
+                    const f = json.files[0];
+                    document.getElementById('prevImg').src = f.thumbnails["360x270"];
+                    document.getElementById('videoTitle').innerText = f.filename;
+                    document.getElementById('downloadUrl').href = f.download_link;
+                }
+                resBox.style.display = "block";
+            } else { alert("Could not fetch data!"); }
+        } catch(e) { alert("Server Busy!"); }
+        finally { resetUI(); }
+    }
+
+    function resetUI() {
+        document.getElementById('goBtn').disabled = false;
+        document.getElementById('loader').style.display = "none";
+    }
+</script>
+
+</body>
+</html>
+
